@@ -47,20 +47,46 @@
         </div>
 
         <div id="result-section" class="hidden space-y-6 animate__animated animate__fadeIn">
-            <div id="printable-content" class="p-6 bg-slate-900/80 rounded-xl border border-slate-700 text-center">
-                <h2 class="text-2xl font-bold text-emerald-400">Hasil Analisis Potensi</h2>
-                <p class="text-slate-300 mt-2">Halo <span id="res-nama" class="font-bold text-white"></span> dari <span id="res-asal" class="font-bold text-white"></span>,</p>
-                <p class="text-sm text-slate-400 mt-1">Berdasarkan kecenderungan jawabanmu, jurusan yang paling cocok untukmu adalah:</p>
+            <div id="printable-content" class="p-6 bg-slate-900/80 rounded-xl border border-slate-700">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-emerald-400">Terima Kasih Banyak!</h2>
+                    <p class="text-slate-300 mt-2">Halo <span id="res-nama" class="font-bold text-white"></span> dari <span id="res-asal" class="font-bold text-white"></span>,</p>
+                    <p class="text-sm text-slate-400 mt-1">Kamu telah berhasil menyelesaikan seluruh rangkaian kuis asesmen minat ini dengan baik.</p>
+                </div>
                 
-                <div class="my-6 p-6 bg-blue-950/60 border border-blue-500/40 rounded-xl">
-                    <h3 id="recommended-jurusan" class="text-2xl font-extrabold text-white tracking-wide uppercase">TEKNIK KOMPUTER JARINGAN</h3>
+                <div class="p-4 bg-blue-950/40 border border-blue-500/20 rounded-xl mb-6">
+                    <p class="font-semibold text-sm text-slate-300 text-center mb-3">Persentase Kecenderungan Bakat:</p>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="bg-slate-800 p-2 rounded-lg border border-slate-700">
+                            <span class="block text-slate-400">Otomotif</span>
+                            <span id="score-to" class="text-base font-bold text-white">0%</span>
+                        </div>
+                        <div class="bg-slate-800 p-2 rounded-lg border border-slate-700">
+                            <span class="block text-slate-400">Elektronika</span>
+                            <span id="score-te" class="text-base font-bold text-white">0%</span>
+                        </div>
+                        <div class="bg-slate-800 p-2 rounded-lg border border-slate-700">
+                            <span class="block text-slate-400">TKJ</span>
+                            <span id="score-tkj" class="text-base font-bold text-white">0%</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="text-left text-xs text-slate-400 space-y-2 max-w-xs mx-auto border-t border-slate-700 pt-4">
-                    <p class="font-semibold text-slate-300">Skor Detail Potensi Kamu:</p>
-                    <div class="flex justify-between"><span>• Teknik Otomotif:</span> <span id="score-to" class="text-white font-bold">0%</span></div>
-                    <div class="flex justify-between"><span>• Teknik Elektronika:</span> <span id="score-te" class="text-white font-bold">0%</span></div>
-                    <div class="flex justify-between"><span>• Teknik Komputer & Jaringan:</span> <span id="score-tkj" class="text-white font-bold">0%</span></div>
+                <div class="border-t border-slate-700 pt-4">
+                    <p class="font-semibold text-sm text-slate-300 mb-3 text-center">Lembar Detail Pilihan Jawaban Siswa:</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-slate-400">
+                                    <th class="py-2 w-10 text-center">No</th>
+                                    <th class="py-2 px-2">Pertanyaan & Pilihan Jawaban Kamu</th>
+                                    <th class="py-2 w-16 text-center">Aspek</th>
+                                </tr>
+                            </thead>
+                            <tbody id="answers-table-body" class="text-slate-300">
+                                </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -77,6 +103,7 @@
     </div>
 
     <script>
+        // GANTI DENGAN URL GOOGLE APPS SCRIPT LO
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxx_0tf--YA-B0xqa3lgacEp8vm27moVBTLilt6z80w23qDdRxVKxM3rl7hSo3yYjlacw/exec";
 
         // Bank Data Pertanyaan (30 Soal Lengkap)
@@ -84,7 +111,7 @@
             { q: "Saat barang elektronik di rumah rusak, apa yang biasanya kamu lakukan?", a: [{t: "Memperhatikan bentuk fisiknya, mencoba membongkar bagian luarnya dengan alat seadanya.", j:"TO"}, {t: "Penasaran sama komponen kecil di dalamnya, pengen tahu ada kabel atau jalur yang putus.", j:"TE"}, {t: "Langsung cari tutorial di YouTube/Google buat tahu langkah demi langkah benerinnya.", j:"TKJ"}] },
             { q: "Kamu lebih suka tipe permainan (game/puzzle) yang seperti apa?", a: [{t: "Game yang butuh ketangkasan tangan atau simulasi menyusun sesuatu fisik.", j:"TO"}, {t: "Puzzle yang butuh ketelitian tinggi, fokus, dan merakit pola-pola kecil.", j:"TE"}, {t: "Game strategi, menyusun jaringan, atau menyelesaikan misi lewat logika.", j:"TKJ"}] },
             { q: "Jika kamu diberi modal untuk membuat proyek kreatif, kamu ingin membuat apa?", a: [{t: "Membuat model miniatur kendaraan atau alat mekanis yang bisa bergerak.", j:"TO"}, {t: "Membuat lampu hias otomatis atau alat sensor jemuran otomatis.", j:"TE"}, {t: "Membuat website komunitas, server game sendiri, atau aplikasi chat.", j:"TKJ"}] },
-            { q: "Gimana cara kamu menyelesaikan masalah yang rumit?", a: [{t: "Langsung praktek, coba-coba bongkar pasang sampai ketemu polanya secara fisik.", j:"TO"}, {t: "Dianalisis pelan-pelan per bagian kecil, dicek satu-satu jalurnya.", j:"TE"}, {t: "Melihat gambaran besarnya, mencari sistem/pola digital yang salah.", j:"TKJ"}] },
+            { q: "Gimana cara kamu menyelesaikan masalah yang rumit?", a: [{t: "Langsung praktek, coba-coba bongkar pasang sampai ketemu polanya secara fisik.", j:"TO"}, {t: "Dianalisis pelan-per bagian kecil, dicek satu-satu jalurnya.", j:"TE"}, {t: "Melihat gambaran besarnya, mencari sistem/pola digital yang salah.", j:"TKJ"}] },
             { q: "Kondisi kerja seperti apa yang paling bikin kamu nyaman?", a: [{t: "Banyak bergerak aktif, bekerja dengan alat fisik, dan melihat hasil nyata.", j:"TO"}, {t: "Duduk tenang di meja dengan komponen-komponen mikro, fokus pada detail kecil.", j:"TE"}, {t: "Di depan layar komputer, mengonfigurasi perangkat agar saling terhubung.", j:"TKJ"}] },
             { q: "Saat berkunjung ke tempat baru, apa yang paling menarik perhatianmu?", a: [{t: "Mesin-mesin besar, alat berat, atau struktur fisik bangunan di sana.", j:"TO"}, {t: "Sistem pencahayaan, papan reklame LED, atau alat otomatis yang ada.", j:"TE"}, {t: "Ketersediaan sinyal Wi-Fi atau kecanggihan sistem kasir dan komputer mereka.", j:"TKJ"}] },
             { q: "Ketika kamu membeli barang baru yang harus dirakit, apa tindakan pertamanya?", a: [{t: "Langsung pasang pake insting, baru lihat buku petunjuk kalau mentok.", j:"TO"}, {t: "Membaca buku petunjuk lembar demi lembar dengan teliti sebelum mulai.", j:"TE"}, {t: "Mencari video unboxing dan review setup-nya di internet.", j:"TKJ"}] },
@@ -116,6 +143,7 @@
         let currentIdx = 0;
         let scores = { TO: 0, TE: 0, TKJ: 0 };
         let userData = { nama: '', asal: '' };
+        let userAnswers = []; // Untuk melacak rekaman jawaban per soal
 
         function startQuiz() {
             userData.nama = document.getElementById('nama').value;
@@ -153,13 +181,21 @@
                 btn.className = "w-full text-left bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 hover:border-blue-400 p-4 rounded-xl text-sm transition-all duration-200 transform active:scale-[0.98] animate__animated animate__fadeInUp cursor-pointer text-white";
                 btn.style.animationDelay = `${index * 100}ms`;
                 btn.innerText = ans.t;
-                btn.onclick = () => selectAnswer(ans.j);
+                btn.onclick = () => selectAnswer(ans.j, ans.t);
                 optionsDiv.appendChild(btn);
             });
         }
 
-        function selectAnswer(jurusan) {
+        function selectAnswer(jurusan, teksJawaban) {
             scores[jurusan]++;
+            
+            // Simpan riwayat jawaban secara mendetail
+            userAnswers.push({
+                soal: questions[currentIdx].q,
+                jawaban: teksJawaban,
+                aspek: jurusan
+            });
+
             currentIdx++;
             
             const qSec = document.getElementById('quiz-section');
@@ -180,80 +216,95 @@
             const resSec = document.getElementById('result-section');
             resSec.classList.remove('hidden');
 
-            let tertinggi = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
-            let namaJurusan = "";
-            if(tertinggi === "TO") namaJurusan = "TEKNIK OTOMOTIF";
-            if(tertinggi === "TE") namaJurusan = "TEKNIK ELEKTRONIKA";
-            if(tertinggi === "TKJ") namaJurusan = "TEKNIK KOMPUTER DAN JARINGAN";
-
+            // Menghitung persentase
             let total = scores.TO + scores.TE + scores.TKJ;
             let pTO = Math.round((scores.TO / total) * 100);
             let pTE = Math.round((scores.TE / total) * 100);
             let pTKJ = Math.round((scores.TKJ / total) * 100);
 
+            // Tampilkan identitas di UI
             document.getElementById('res-nama').innerText = userData.nama;
             document.getElementById('res-asal').innerText = userData.asal;
-            document.getElementById('recommended-jurusan').innerText = namaJurusan;
             document.getElementById('score-to').innerText = pTO + "%";
             document.getElementById('score-te').innerText = pTE + "%";
             document.getElementById('score-tkj').innerText = pTKJ + "%";
 
+            // INJECT DETAIL JAWABAN KE DALAM TABEL HTML
+            const tbody = document.getElementById('answers-table-body');
+            tbody.innerHTML = '';
+            userAnswers.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800/60 hover:bg-slate-800/40";
+                tr.innerHTML = `
+                    <td class="py-2.5 text-center font-semibold text-slate-500">${index + 1}</td>
+                    <td class="py-2.5 px-2">
+                        <p class="text-slate-400 italic mb-0.5">${item.soal}</p>
+                        <p class="text-emerald-400 font-medium">➔ ${item.jawaban}</p>
+                    </td>
+                    <td class="py-2.5 text-center font-bold text-blue-400">${item.aspek}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Cari nilai tertinggi hanya untuk keperluan reporting ke Google Sheets
+            let tertinggi = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            let namaJurusan = tertinggi === "TO" ? "TEKNIK OTOMOTIF" : tertinggi === "TE" ? "TEKNIK ELEKTRONIKA" : "TEKNIK KOMPUTER DAN JARINGAN";
+
+            // Kirim data murni ke Google Sheets (Data Rekomendasi di background backend tetap masuk agar panitia tau kecenderungan)
             sendDataToGoogleSheet(namaJurusan, pTO, pTE, pTKJ);
         }
 
         function sendDataToGoogleSheet(rekomendasi, to, te, tkj) {
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            nama: userData.nama,
-            asal: userData.asal,
-            rekomendasi: rekomendasi, // <-- Udah di-fix jadi bersih cuma manggil 'rekomendasi'
-            skor_to: to,
-            skor_te: te,
-            skor_tkj: tkj
-        })
-    }).then(() => console.log("Data berhasil dikirim ke Google Sheet"))
-      .catch(err => console.error("Gagal kirim data:", err));
-}
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    nama: userData.nama,
+                    asal: userData.asal,
+                    rekomendasi: rekomendasi, 
+                    skor_to: to,
+                    skor_te: te,
+                    skor_tkj: tkj
+                })
+            }).then(() => console.log("Data berhasil dikirim ke Google Sheet"))
+              .catch(err => console.error("Gagal kirim data:", err));
+        }
 
         function downloadPDF() {
-    const element = document.getElementById('printable-content');
-    
-    if (typeof html2pdf === 'undefined') {
-        alert("Waduh bro, library PDF gagal dimuat karena masalah koneksi/blokir CDN. Sebagai gantinya, kamu bisa gunakan fitur cetak bawaan browser (Ctrl+P).");
-        window.print();
-        return;
-    }
+            const element = document.getElementById('printable-content');
+            
+            if (typeof html2pdf === 'undefined') {
+                alert("Waduh bro, library PDF gagal dimuat karena masalah koneksi/blokir CDN. Sebagai gantinya, kamu bisa gunakan fitur cetak bawaan browser (Ctrl+P).");
+                window.print();
+                return;
+            }
 
-    // Ubah teks tombol jadi loading sebentar agar user tahu sistem sedang bekerja
-    const btn = event.currentTarget || document.querySelector("button[onclick='downloadPDF()']");
-    const originalText = btn.innerText;
-    btn.innerText = "Generating PDF...";
-    btn.disabled = true;
+            // Ubah tombol jadi loading & mencegah double click (Fix INP Issue)
+            const btn = event.currentTarget || document.querySelector("button[onclick='downloadPDF()']");
+            const originalText = btn.innerText;
+            btn.innerText = "Generating PDF...";
+            btn.disabled = true;
 
-    // Menggunakan setTimeout agar browser tidak freezing (Mengatasi INP Issue)
-    setTimeout(() => {
-        const opt = {
-            margin:       [0.4, 0.4, 0.4, 0.4],
-            filename:     `Hasil_Asesmen_${userData.nama}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { 
-                scale: 2, 
-                useCORS: true,
-                backgroundColor: "#0f172a" 
-            },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
+            setTimeout(() => {
+                const opt = {
+                    margin:       [0.3, 0.3, 0.3, 0.3],
+                    filename:     `Hasil_Jawaban_Asesmen_${userData.nama}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { 
+                        scale: 1.5, 
+                        useCORS: true,
+                        backgroundColor: "#0f172a" 
+                    },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
 
-        html2pdf().set(opt).from(element).save().then(() => {
-            // Kembalikan tombol seperti semula setelah download kelar
-            btn.innerText = originalText;
-            btn.disabled = false;
-        });
-    }, 50); // Jeda 50ms memberikan waktu bagi browser untuk memperbarui UI
-}
+                html2pdf().set(opt).from(element).save().then(() => {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                });
+            }, 50); 
+        }
 
         function resetQuiz() {
             location.reload();
