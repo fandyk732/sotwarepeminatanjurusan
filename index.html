@@ -219,28 +219,41 @@
 }
 
         function downloadPDF() {
-            const element = document.getElementById('printable-content');
-            
-            // Pengaman opsional jika library html2pdf gagal dimuat CDN
-            if (typeof html2pdf === 'undefined') {
-                alert("Waduh bro, library PDF gagal dimuat karena masalah koneksi/blokir CDN. Sebagai gantinya, kamu bisa gunakan fitur cetak bawaan browser (Ctrl+P / Simpan sebagai PDF).");
-                window.print();
-                return;
-            }
+    const element = document.getElementById('printable-content');
+    
+    if (typeof html2pdf === 'undefined') {
+        alert("Waduh bro, library PDF gagal dimuat karena masalah koneksi/blokir CDN. Sebagai gantinya, kamu bisa gunakan fitur cetak bawaan browser (Ctrl+P).");
+        window.print();
+        return;
+    }
 
-            const opt = {
-                margin:       [0.4, 0.4, 0.4, 0.4],
-                filename:     `Hasil_Asesmen_${userData.nama}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true,
-                    backgroundColor: "#0f172a" 
-                },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
-        }
+    // Ubah teks tombol jadi loading sebentar agar user tahu sistem sedang bekerja
+    const btn = event.currentTarget || document.querySelector("button[onclick='downloadPDF()']");
+    const originalText = btn.innerText;
+    btn.innerText = "Generating PDF...";
+    btn.disabled = true;
+
+    // Menggunakan setTimeout agar browser tidak freezing (Mengatasi INP Issue)
+    setTimeout(() => {
+        const opt = {
+            margin:       [0.4, 0.4, 0.4, 0.4],
+            filename:     `Hasil_Asesmen_${userData.nama}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: "#0f172a" 
+            },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Kembalikan tombol seperti semula setelah download kelar
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    }, 50); // Jeda 50ms memberikan waktu bagi browser untuk memperbarui UI
+}
 
         function resetQuiz() {
             location.reload();
