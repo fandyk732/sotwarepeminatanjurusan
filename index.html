@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asesmen Minat Jurusan - SMK Al Kaaffah</title>
-    <!-- Tailwind CSS for Smooth & Cool UI -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Animation Library -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <!-- html2pdf.js for PDF Printing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <style>
         .custom-gradient {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
@@ -18,10 +15,8 @@
 </head>
 <body class="custom-gradient text-slate-100 min-h-screen font-sans flex items-center justify-center p-4">
 
-    <!-- Card Container -->
     <div class="bg-slate-800/80 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-2xl max-w-2xl w-full transition-all duration-500">
         
-        <!-- Header SMK -->
         <div class="text-center mb-8">
             <h1 class="text-2xl font-bold tracking-wide text-blue-400">SMK AL KAAFFAH</h1>
             <p class="text-sm text-slate-400 mt-1">Sistem Rekomendasi Jurusan Baru</p>
@@ -30,7 +25,6 @@
             </div>
         </div>
 
-        <!-- Form Biodata (Awal) -->
         <div id="biodata-section" class="space-y-4 animate__animated animate__fadeIn">
             <h2 class="text-xl font-semibold mb-4 text-center">Isi Data Diri Kamu</h2>
             <div>
@@ -44,19 +38,15 @@
             <button onclick="startQuiz()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg mt-6 shadow-lg transform active:scale-95 transition cursor-pointer">Mulai Tes Minat</button>
         </div>
 
-        <!-- Kuis Section (Hidden di Awal) -->
         <div id="quiz-section" class="hidden animate__animated">
             <p id="question-number" class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">Pertanyaan 1</p>
             <h2 id="question-text" class="text-lg font-medium text-white mb-6 leading-relaxed">Pertanyaan loading...</h2>
             
             <div id="options-container" class="space-y-3">
-                <!-- Pilihan jawaban di-inject via JS -->
-            </div>
+                </div>
         </div>
 
-        <!-- Hasil Section (Hidden di Awal) -->
         <div id="result-section" class="hidden space-y-6 animate__animated animate__fadeIn">
-            <!-- Area Khusus Cetak PDF -->
             <div id="printable-content" class="p-6 bg-slate-900/80 rounded-xl border border-slate-700 text-center">
                 <h2 class="text-2xl font-bold text-emerald-400">Hasil Analisis Potensi</h2>
                 <p class="text-slate-300 mt-2">Halo <span id="res-nama" class="font-bold text-white"></span> dari <span id="res-asal" class="font-bold text-white"></span>,</p>
@@ -74,12 +64,11 @@
                 </div>
             </div>
 
-            <!-- Bagian Tombol Aksi (Di luar printable-content agar tidak ikut tercetak di PDF) -->
             <div class="flex gap-4">
-                <button onclick="downloadPDF()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium shadow-md transition transform active:scale-95 cursor-pointer text-center">
+                <button onclick="downloadPDF()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium shadow-md transition transform active:scale-95 cursor-pointer text-center text-white">
                     Unduh Hasil (PDF)
                 </button>
-                <button onclick="resetQuiz()" class="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-lg font-medium transition transform active:scale-95 cursor-pointer text-center">
+                <button onclick="resetQuiz()" class="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-lg font-medium transition transform active:scale-95 cursor-pointer text-center text-white">
                     Ulangi
                 </button>
             </div>
@@ -88,7 +77,6 @@
     </div>
 
     <script>
-        // GANTI DENGAN URL GOOGLE APPS SCRIPT WEB APP LO
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxx_0tf--YA-B0xqa3lgacEp8vm27moVBTLilt6z80w23qDdRxVKxM3rl7hSo3yYjlacw/exec";
 
         // Bank Data Pertanyaan (30 Soal Lengkap)
@@ -162,7 +150,7 @@
 
             questions[currentIdx].a.forEach((ans, index) => {
                 const btn = document.createElement('button');
-                btn.className = "w-full text-left bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 hover:border-blue-400 p-4 rounded-xl text-sm transition-all duration-200 transform active:scale-[0.98] animate__animated animate__fadeInUp cursor-pointer";
+                btn.className = "w-full text-left bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 hover:border-blue-400 p-4 rounded-xl text-sm transition-all duration-200 transform active:scale-[0.98] animate__animated animate__fadeInUp cursor-pointer text-white";
                 btn.style.animationDelay = `${index * 100}ms`;
                 btn.innerText = ans.t;
                 btn.onclick = () => selectAnswer(ans.j);
@@ -189,7 +177,6 @@
             document.getElementById('progress-bar').style.width = `100%`;
             document.getElementById('quiz-section').classList.add('hidden');
             
-            // Menampilkan Result Section secara penuh beserta tombolnya
             const resSec = document.getElementById('result-section');
             resSec.classList.remove('hidden');
 
@@ -222,7 +209,7 @@
                 body: JSON.stringify({
                     nama: userData.nama,
                     asal: userData.asal,
-                    rekomendasi: rekomendasi,
+                    rekomendasi: recommendations || rekomendasi,
                     skor_to: to,
                     skor_te: te,
                     skor_tkj: tkj
@@ -233,6 +220,14 @@
 
         function downloadPDF() {
             const element = document.getElementById('printable-content');
+            
+            // Pengaman opsional jika library html2pdf gagal dimuat CDN
+            if (typeof html2pdf === 'undefined') {
+                alert("Waduh bro, library PDF gagal dimuat karena masalah koneksi/blokir CDN. Sebagai gantinya, kamu bisa gunakan fitur cetak bawaan browser (Ctrl+P / Simpan sebagai PDF).");
+                window.print();
+                return;
+            }
+
             const opt = {
                 margin:       [0.4, 0.4, 0.4, 0.4],
                 filename:     `Hasil_Asesmen_${userData.nama}.pdf`,
