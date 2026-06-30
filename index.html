@@ -202,21 +202,21 @@
         }
 
         function sendDataToGoogleSheet(rekomendasi, to, te, tkj) {
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    nama: userData.nama,
-                    asal: userData.asal,
-                    rekomendasi: recommendations || rekomendasi,
-                    skor_to: to,
-                    skor_te: te,
-                    skor_tkj: tkj
-                })
-            }).then(() => console.log("Data berhasil dikirim ke Google Sheet"))
-              .catch(err => console.error("Gagal kirim data:", err));
-        }
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            nama: userData.nama,
+            asal: userData.asal,
+            rekomendasi: rekomendasi, // <-- Udah di-fix jadi bersih cuma manggil 'rekomendasi'
+            skor_to: to,
+            skor_te: te,
+            skor_tkj: tkj
+        })
+    }).then(() => console.log("Data berhasil dikirim ke Google Sheet"))
+      .catch(err => console.error("Gagal kirim data:", err));
+}
 
         function downloadPDF() {
             const element = document.getElementById('printable-content');
