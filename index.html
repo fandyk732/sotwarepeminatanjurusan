@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesmen Minat Jurusan - SMK Al Kaaffah</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .custom-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+        }
+    </style>
+</head>
+<body class="custom-gradient text-slate-100 min-h-screen font-sans flex items-center justify-center p-4">
+
+    <div class="bg-slate-800/80 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-2xl max-w-2xl w-full transition-all duration-500">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold tracking-wide text-blue-400">SMK AL KAAFFAH</h1>
+            <p class="text-sm text-slate-400 mt-1">Sistem Rekomendasi Jurusan Baru</p>
+            <div class="w-full bg-slate-700 h-2 rounded-full mt-4 overflow-hidden">
+                <div id="progress-bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <div id="biodata-section" class="space-y-4 animate__animated animate__fadeIn">
+            <h2 class="text-xl font-semibold mb-4 text-center">Isi Data Diri Kamu</h2>
+            <div>
+                <label class="block text-sm text-slate-400 mb-1">Nama Lengkap</label>
+                <input type="text" id="nama" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white" placeholder="Masukkan nama kamu...">
+            </div>
+            <div>
+                <label class="block text-sm text-slate-400 mb-1">Asal Sekolah</label>
+                <input type="text" id="asal-sekolah" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white" placeholder="SMP Asal...">
+            </div>
+            <button onclick="startQuiz()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg mt-6 shadow-lg transform active:scale-95 transition">Mulai Tes Minat</button>
+        </div>
+
+        <div id="quiz-section" class="hidden animate__animated">
+            <p id="question-number" class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">Pertanyaan 1</p>
+            <h2 id="question-text" class="text-lg font-medium text-white mb-6 leading-relaxed">Pertanyaan loading...</h2>
+            
+            <div id="options-container" class="space-y-3">
+                </div>
+        </div>
+
+        <div id="result-section" class="hidden text-center space-y-6 animate__animated animate__fadeIn" id="pdf-area">
+            <div id="printable-content" class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                <h2 class="text-2xl font-bold text-emerald-400">Hasil Analisis Potensi</h2>
+                <p class="text-slate-300 mt-2">Halo <span id="res-nama" class="font-bold text-white"></span> dari <span id="res-asal" class="font-bold text-white"></span>,</p>
+                <p class="text-sm text-slate-400 mt-1">Berdasarkan kecenderungan jawabanmu, jurusan yang paling cocok untukmu adalah:</p>
+                
+                <div class="my-6 p-6 bg-blue-950/40 border border-blue-500/30 rounded-xl">
+                    <h3 id="recommended-jurusan" class="text-3xl font-extrabold text-white tracking-wide">TEKNIK COMPUTER JARINGAN</h3>
+                </div>
+
+                <div class="text-left text-xs text-slate-400 space-y-1">
+                    <p>Skor Detail Kamu:</p>
+                    <p>• Teknik Otomotif: <span id="score-to">0</span>%</p>
+                    <p>• Teknik Elektronika: <span id="score-te">0</span>%</p>
+                    <p>• Teknik Komputer & Jaringan: <span id="score-tkj">0</span>%</p>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button onclick="downloadPDF()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium shadow-md transition active:scale-95">Unduh Hasil (PDF)</button>
+                <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-lg font-medium transition">Ulangi</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // GANTI DENGAN URL GOOGLE APPS SCRIPT WEB APP LO NANTI
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxx_0tf--YA-B0xqa3lgacEp8vm27moVBTLilt6z80w23qDdRxVKxM3rl7hSo3yYjlacw/exec";
+
+        // Bank Data Pertanyaan (Contoh 5 Soal, silakan tambah sampai 30-50 sesuai pola)
+        const questions = [
+    { q: "Saat barang elektronik di rumah rusak, apa yang biasanya kamu lakukan?", a: [{t: "Memperhatikan bentuk fisiknya, mencoba membongkar bagian luarnya dengan alat seadanya.", j:"TO"}, {t: "Penasaran sama komponen kecil di dalamnya, pengen tahu ada kabel atau jalur yang putus.", j:"TE"}, {t: "Langsung cari tutorial di YouTube/Google buat tahu langkah demi langkah benerinnya.", j:"TKJ"}] },
+    { q: "Kamu lebih suka tipe permainan (game/puzzle) yang seperti apa?", a: [{t: "Game yang butuh ketangkasan tangan atau simulasi menyusun sesuatu fisik.", j:"TO"}, {t: "Puzzle yang butuh ketelitian tinggi, fokus, dan merakit pola-pola kecil.", j:"TE"}, {t: "Game strategi, menyusun jaringan, atau menyelesaikan misi lewat logika.", j:"TKJ"}] },
+    { q: "Jika kamu diberi modal untuk membuat proyek kreatif, kamu ingin membuat apa?", a: [{t: "Membuat model miniatur kendaraan atau alat mekanis yang bisa bergerak.", j:"TO"}, {t: "Membuat lampu hias otomatis atau alat sensor jemuran otomatis.", j:"TE"}, {t: "Membuat website komunitas, server game sendiri, atau aplikasi chat.", j:"TKJ"}] },
+    { q: "Gimana cara kamu menyelesaikan masalah yang rumit?", a: [{t: "Langsung praktek, coba-coba bongkar pasang sampai ketemu polanya secara fisik.", j:"TO"}, {t: "Dianalisis pelan-pelan per bagian kecil, dicek satu-satu jalurnya.", j:"TE"}, {t: "Melihat gambaran besarnya, mencari sistem/pola digital yang salah.", j:"TKJ"}] },
+    { q: "Kondisi kerja seperti apa yang paling bikin kamu nyaman?", a: [{t: "Banyak bergerak aktif, bekerja dengan alat fisik, dan melihat hasil nyata.", j:"TO"}, {t: "Duduk tenang di meja dengan komponen-komponen mikro, fokus pada detail kecil.", j:"TE"}, {t: "Di depan layar komputer, mengonfigurasi perangkat agar saling terhubung.", j:"TKJ"}] },
+    { q: "Saat berkunjung ke tempat baru, apa yang paling menarik perhatianmu?", a: [{t: "Mesin-mesin besar, alat berat, atau struktur fisik bangunan di sana.", j:"TO"}, {t: "Sistem pencahayaan, papan reklame LED, atau alat otomatis yang ada.", j:"TE"}, {t: "Ketersediaan sinyal Wi-Fi atau kecanggihan sistem kasir dan komputer mereka.", j:"TKJ"}] },
+    { q: "Ketika kamu membeli barang baru yang harus dirakit, apa tindakan pertamanya?", a: [{t: "Langsung pasang pake insting, baru lihat buku petunjuk kalau mentok.", j:"TO"}, {t: "Membaca buku petunjuk lembar demi lembar dengan teliti sebelum mulai.", j:"TE"}, {t: "Mencari video unboxing dan review setup-nya di internet.", j:"TKJ"}] },
+    { q: "Apa hobi yang paling sering kamu lakukan di waktu luang?", a: [{t: "Berolahraga, memodifikasi sepeda/mainan fisik, atau aktivitas luar ruangan.", j:"TO"}, {t: "Membuat kerajinan tangan, menyolder, atau mengotak-atik lampu.", j:"TE"}, {t: "Browsing internet, main game online, atau mencoba software baru.", j:"TKJ"}] },
+    { q: "Jika melihat sebuah remot TV tidak berfungsi, apa dugaan pertamanya?", a: [{t: "Ada tombol fisik yang aus atau casing-nya longgar karena sering jatuh.", j:"TO"}, {t: "Konektor kuningan baterainya berkarat atau ada jalur sirkuit yang putus.", j:"TE"}, {t: "Sensor inframerahnya tidak sinkron atau frekuensinya terganggu.", j:"TKJ"}] },
+    { q: "Pelajaran sekolah apa yang paling kamu nikmati selain pelajaran produktif?", a: [{t: "Fisika Mekanika atau Olahraga yang banyak mengandalkan gerak dan gaya.", j:"TO"}, {t: "Matematika/Fisika Listrik yang butuh perhitungan rumus logis.", j:"TE"}, {t: "Simulasi Digital atau TIK yang menggunakan lab komputer.", j:"TKJ"}] },
+    { q: "Bagaimana caramu mengorganisasi barang-barang di kamarmu?", a: [{t: "Dikelompokkan berdasarkan fungsi dan ukuran fisik agar mudah diambil.", j:"TO"}, {t: "Sangat rapi, diletakkan di wadah kecil-kecil, tidak boleh ada yang tercecer.", j:"TE"}, {t: "Lebih fokus mengatur file di laptop/HP agar rapi dibanding kamar fisik.", j:"TKJ"}] },
+    { q: "Apa yang membuatmu merasa puas setelah menyelesaikan suatu tugas?", a: [{t: "Melihat wujud benda tersebut berfungsi dengan gagah dan kuat secara fisik.", j:"TO"}, {t: "Melihat komponen kecil bekerja sinkron menghasilkan fungsi baru.", j:"TE"}, {t: "Melihat sistem berjalan lancar, cepat, dan tanpa error di layar.", j:"TKJ"}] },
+    { q: "Ketika internet di rumahmu mendadak mati, apa yang kamu lakukan?", a: [{t: "Mengecek kabel fisik di luar rumah, apakah putus atau terjepit pintu.", j:"TO"}, {t: "Memeriksa lampu indikator modem, apakah berkedip tidak normal atau kepanasan.", j:"TE"}, {t: "Masuk ke pengaturan IP modem lewat HP untuk restart atau cek konfigurasi.", j:"TKJ"}] },
+    { q: "Jika diajak ke pameran teknologi, stan mana yang akan kamu datangi duluan?", a: [{t: "Stan kendaraan konsep masa depan atau alat transportasi modern.", j:"TO"}, {t: "Stan robotika otomatis, smart home, atau gadget mikro terbaru.", j:"TE"}, {t: "Stan cloud computing, cyber security, atau setup server gaming.", j:"TKJ"}] },
+    { q: "Bagaimana responmu ketika melihat petunjuk kerja yang menggunakan bahasa asing?", a: [{t: "Melihat gambar ilustrasinya saja, karena gambar struktur sudah cukup jelas.", j:"TO"}, {t: "Menerjemahkannya kata demi kata agar tidak salah pasang komponen.", j:"TE"}, {t: "Menggunakan Google Lens atau mencari dokumentasi digitalnya di internet.", j:"TKJ"}] },
+    { q: "Kamu lebih memilih tantangan yang seperti apa?", a: [{t: "Memperbaiki barang berat yang butuh tenaga ekstra dan keahlian tangan.", j:"TO"}, {t: "Menemukan komponen mati berukuran 1 milimeter di papan sirkuit.", j:"TE"}, {t: "Mencari satu baris kode atau konfigurasi IP yang salah di ratusan data.", j:"TKJ"}] },
+    { q: "Apa hal pertama yang kamu perhatikan saat melihat smartphone baru?", a: [{t: "Desain bodi, ketahanan material fisik, dan kenyamanan saat digenggam.", j:"TO"}, {t: "Kapasitas baterai, kecepatan pengisian daya, dan jenis layarnya.", j:"TE"}, {t: "Sistem operasi, kapasitas RAM/Memori, dan kestabilan koneksi 5G-nya.", j:"TKJ"}] },
+    { q: "Saat bekerja dalam tim, peran mana yang paling kamu sukai?", a: [{t: "Bagian eksekutor lapangan yang merakit struktur utama proyek.", j:"TO"}, {t: "Bagian quality control yang memeriksa detail dan menyambungkan kabel.", j:"TE"}, {t: "Bagian perancang sistem, membuat alur kerja, dan setup perangkat digital.", j:"TKJ"}] },
+    { q: "Jika sebuah kipas angin berputar sangat lambat, apa yang kamu curigai?", a: [{t: "Poros putarannya kotor, berdebu, atau butuh diberi pelumas/oli.", j:"TO"}, {t: "Kapasitornya sudah lemah atau ada kumparan dinamo yang terbakar.", j:"TE"}, {t: "Kabel power-nya kurang stabil atau saklar pengaturnya error.", j:"TKJ"}] },
+    { q: "Kamu lebih suka menghabiskan uang tabunganmu untuk membeli apa?", a: [{t: "Alat-alat perkakas (tools), perlengkapan outdoor, atau aksesoris fisik.", j:"TO"}, {t: "Kit robotika edukasi, komponen elektronik, atau alat solder keren.", j:"TE"}, {t: "Lisensi software, router Wi-Fi baru, atau upgrade komponen PC.", j:"TKJ"}] },
+    { q: "Ketika melihat film fiksi ilmiah (Sci-Fi), bagian mana yang paling kamu kagumi?", a: [{t: "Desain pesawat tempur dan kendaraan tempur darat yang gagah.", j:"TO"}, {t: "Teknologi robot pengawal atau senjata laser dengan sensor canggih.", j:"TE"}, {t: "Kemampuan hacker meretas sistem keamanan atau hologram pusat data.", j:"TKJ"}] },
+    { q: "Menurutmu, kemampuan apa yang paling penting dimiliki di masa depan?", a: [{t: "Keahlian merawat dan mengoperasikan mesin penunjang kehidupan manusia.", j:"TO"}, {t: "Keahlian menciptakan teknologi otomatisasi dan hemat energi.", j:"TE"}, {t: "Keahlian mengelola data, jaringan global, dan keamanan cyber.", j:"TKJ"}] },
+    { q: "Jika disuruh memilih alat kerja, kamu lebih suka memegang yang mana?", a: [{t: "Kunci pas, obeng besar, dongkrak, atau tang jepit berat.", j:"TO"}, {t: "Multitester digital, solder, pinset, atau kaca pembesar.", j:"TE"}, {t: "Laptop, tang krimp (crimping tool), atau kabel LAN.", j:"TKJ"}] },
+    { q: "Bagaimana caramu mengingat jalan atau rute yang baru sekali kamu lewati?", a: [{t: "Mengingat patokan fisik seperti bengkel, gedung besar, atau jenis aspalnya.", j:"TO"}, {t: "Mengingat urutan lampu merah dan persimpangan berdasarkan arah kompas.", j:"TE"}, {t: "Mengandalkan visualisasi peta digital (Google Maps) di dalam kepala.", j:"TKJ"}] },
+    { q: "Saat main game simulasi, tipe aktivitas apa yang paling membuatmu betah?", a: [{t: "Membangun, membongkar, dan memodifikasi mesin kendaraan.", j:"TO"}, {t: "Merangkai jalur kabel listrik kota agar semua wilayah dapat daya.", j:"TE"}, {t: "Membangun menara pemancar dan menghubungkan jaringan antar kota.", j:"TKJ"}] },
+    { q: "Apa reaksi pertamanya jika melihat kabel charger HP-mu terkelupas?", a: [{t: "Langsung melapisinya dengan lakban tebal agar serat besinya tidak patah.", j:"TO"}, {t: "Memotong bagian rusak lalu menyambung ulang kawat tembaganya dengan rapi.", j:"TE"}, {t: "Segera ganti baru karena takut merusak IC power atau sistem software HP.", j:"TKJ"}] },
+    { q: "Kamu tipe orang yang dinilai teman-temanmu seperti apa?", a: [{t: "Praktis, tangguh, bertenaga, dan suka langsung turun tangan.", j:"TO"}, {t: "Sabar, teliti, fokus pada hal-hal kecil yang dilewati orang lain.", j:"TE"}, {t: "Logis, cepat tanggap soal teknologi, dan jago cari solusi digital.", j:"TKJ"}] },
+    { q: "Jika komputer/HP temanmu lemot, apa saran pertama yang kamu berikan?", a: [{t: "Coba cek fisiknya, apakah casing-nya terlalu panas atau berdebu tebal.", j:"TO"}, {t: "Mungkin tegangan chargernya drop atau baterainya sudah drop/kembung.", j:"TE"}, {t: "Hapus cache, cek aplikasi latar belakang, atau instal ulang OS-nya.", j:"TKJ"}] },
+    { q: "Ketika mati lampu di malam hari, benda apa yang langsung kamu cari?", a: [{t: "Genset fisik atau perkakas untuk memicu sumber daya cadangan.", j:"TO"}, {t: "Emergency light otomatis atau merakit lampu LED dengan baterai.", j:"TE"}, {t: "Powerbank untuk memastikan HP dan koneksi internet tetap menyala.", j:"TKJ"}] },
+    { q: "Mengapa kamu tertarik masuk ke sekolah kejuruan (SMK)?", a: [{t: "Pengen punya keahlian nyata mengolah benda fisik dan industri manufaktur.", j:"TO"}, {t: "Pengen bisa menciptakan alat otomatis yang mempermudah hidup manusia.", j:"TE"}, {t: "Pengen menguasai teknologi digital dan infrastruktur internet masa depan.", j:"TKJ"}] }
+];
+
+        let currentIdx = 0;
+        let scores = { TO: 0, TE: 0, TKJ: 0 };
+        let userData = { nama: '', asal: '' };
+
+        function startQuiz() {
+            userData.nama = document.getElementById('nama').value;
+            userData.asal = document.getElementById('asal-sekolah').value;
+
+            if(!userData.nama || !userData.asal) {
+                alert("Wajib isi Nama dan Asal Sekolah ya bro!");
+                return;
+            }
+
+            document.getElementById('biodata-section').classList.add('hidden');
+            const qSec = document.getElementById('quiz-section');
+            qSec.classList.remove('hidden');
+            qSec.classList.add('animate__fadeInRight');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if(currentIdx >= questions.length) {
+                endQuiz();
+                return;
+            }
+
+            // Update Progress Bar
+            const prog = ((currentIdx) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${prog}%`;
+
+            document.getElementById('question-number').innerText = `Pertanyaan ${currentIdx + 1} dari ${questions.length}`;
+            document.getElementById('question-text').innerText = questions[currentIdx].q;
+            
+            const optionsDiv = document.getElementById('options-container');
+            optionsDiv.innerHTML = '';
+
+            // Render Pilihan Jawaban dengan Animasi Elegan
+            questions[currentIdx].a.forEach((ans, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 hover:border-blue-400 p-4 rounded-xl text-sm transition-all duration-200 transform active:scale-[0.98] animate__animated animate__fadeInUp";
+                btn.style.animationDelay = `${index * 100}ms`;
+                btn.innerText = ans.t;
+                btn.onclick = () => selectAnswer(ans.j);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(jurusan) {
+            scores[jurusan]++;
+            currentIdx++;
+            
+            const qSec = document.getElementById('quiz-section');
+            qSec.classList.remove('animate__fadeInRight');
+            qSec.classList.add('animate__fadeOutLeft');
+            
+            setTimeout(() => {
+                qSec.classList.remove('animate__fadeOutLeft');
+                qSec.classList.add('animate__fadeInRight');
+                showQuestion();
+            }, 250);
+        }
+
+        function endQuiz() {
+            document.getElementById('progress-bar').style.width = `100%`;
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('result-section').classList.remove('hidden');
+
+            // Kalkulasi Hasil Rekomendasi Tertinggi
+            let tertinggi = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            let namaJurusan = "";
+            if(tertinggi === "TO") namaJurusan = "TEKNIK OTOMOTIF";
+            if(tertinggi === "TE") namaJurusan = "TEKNIK ELEKTRONIKA";
+            if(tertinggi === "TKJ") namaJurusan = "TEKNIK KOMPUTER DAN JARINGAN";
+
+            // Hitung Persentase
+            let total = scores.TO + scores.TE + scores.TKJ;
+            let pTO = Math.round((scores.TO / total) * 100);
+            let pTE = Math.round((scores.TE / total) * 100);
+            let pTKJ = Math.round((scores.TKJ / total) * 100);
+
+            // Tampilkan Ke UI
+            document.getElementById('res-nama').innerText = userData.nama;
+            document.getElementById('res-asal').innerText = userData.asal;
+            document.getElementById('recommended-jurusan').innerText = namaJurusan;
+            document.getElementById('score-to').innerText = pTO;
+            document.getElementById('score-te').innerText = pTE;
+            document.getElementById('score-tkj').innerText = pTKJ;
+
+            // Kirim Data Otomatis Ke Google Sheet
+            sendDataToGoogleSheet(namaJurusan, pTO, pTE, pTKJ);
+        }
+
+        function sendDataToGoogleSheet(rekomendasi, to, te, tkj) {
+            // Mengirim data menggunakan Fetch API (CORS mode)
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    nama: userData.nama,
+                    asal: userData.asal,
+                    rekomendasi: rekomendasi,
+                    skor_to: to,
+                    skor_te: te,
+                    skor_tkj: tkj
+                })
+            }).then(() => console.log("Data sukses dikirim ke Google Sheet"))
+              .catch(err => console.error("Gagal kirim data:", err));
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('printable-content');
+            const opt = {
+                margin:       1,
+                filename:     `Hasil_Asesmen_${userData.nama}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, backgroundColor: "#1e293b" },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html></html>
